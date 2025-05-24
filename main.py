@@ -35,6 +35,7 @@ class MovieCollection:
     def __iter__(self) -> Iterator[Movie]:
         return iter(self.movies.values())
 
+
 collection = MovieCollection()
 
 collection.add_movie(Movie('Гарри Поттер и Узник Азкабана', 'приключения', 2004, 8.2))
