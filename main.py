@@ -25,6 +25,7 @@ class MovieIterator(Iterator[Movie]):
 class MovieCollection:
     def __init__(self) -> None:
         self.movies: Dict[str, Movie] = {}
+        self.collections: Dict[str, List[Movie]] = {}
 
     def add_movie(self, movie: Movie) -> None:
         self.movies[movie.title] = movie
@@ -35,7 +36,37 @@ class MovieCollection:
         else:
             raise ValueError(f'Фильм с названием {title} не найден.')
 
+    def create_collection(self, name: str) -> None:
+        if name in self.collections:
+            raise ValueError(f"Коллекция '{name}' уже существует")
+        self.collections[name] = []
 
+    def add_to_collection(self, collection_name: str, movie_title: str) -> None:
+        if collection_name not in self.collections:
+            raise ValueError(f"Коллекция '{collection_name}' не найдена")
+        if movie_title not in self.movies:
+            raise ValueError(f"Фильм '{movie_title}' не найден")
+
+        movie = self.movies[movie_title]
+        if movie in self.collections[collection_name]:
+            raise ValueError(f"Фильм уже есть в коллекции '{collection_name}'")
+
+        self.collections[collection_name].append(movie)
+
+    def remove_movie_from_collection(self, collection_name: str, movie_title: str) -> None:
+        if collection_name not in self.collections:
+            raise ValueError(f"Коллекция '{collection_name}' не найдена")
+        if movie_title not in self.movies:
+            raise ValueError(f"Фильм '{movie_title}' не найден")
+
+        movie = self.movies[movie_title]
+        if movie not in self.collections[collection_name]:
+            raise ValueError(f"Фильм не найден в коллекции '{collection_name}'")
+
+        self.collections[collection_name].remove(movie)
+
+    def get_collection(self, name: str) -> List[Movie]:
+        return self.collections.get(name, [])
 
     def search_by_title(self, title: str) -> Optional[Movie]:
         return self.movies.get(title)
@@ -55,19 +86,43 @@ collection = MovieCollection()
 collection.add_movie(Movie('Гарри Поттер и Узник Азкабана', 'приключения', 2004, 8.2))
 collection.add_movie(Movie('Алиса в стране чудес', 'фентези', 2010, 7.1))
 collection.add_movie(Movie('Мой любимый враг', 'мелодрама', 2021, 8.2))
+collection.add_movie(Movie('Зеленая миля', 'драма', 1999, 9.1))
+collection.add_movie(Movie('Побег из Шоушенка', 'драма', 1994, 9.0))
+collection.add_movie(Movie('Форрест Гамп', 'драма', 1994, 8.9))
+collection.add_movie(Movie('Интерстеллар', 'фантастика', 2014, 8.6))
 
-for movie in collection.search_by_year(2004):
+collection.create_collection('Драмы 90-х')
+collection.create_collection('Лучшие фильмы')
+
+collection.add_to_collection('Драмы 90-х', 'Зеленая миля')
+collection.add_to_collection('Драмы 90-х', 'Побег из Шоушенка')
+collection.add_to_collection('Драмы 90-х', 'Форрест Гамп')
+collection.add_to_collection('Лучшие фильмы', 'Побег из Шоушенка')
+collection.add_to_collection('Лучшие фильмы', 'Интерстеллар')
+collection.add_to_collection('Лучшие фильмы', 'Мой любимый враг')
+collection.add_to_collection('Лучшие фильмы', 'Алиса в стране чудес')
+
+print('Фильмы 1994 года')
+for movie in collection.search_by_year(1994):
     print(movie)
 
-for movie in collection.search_by_genre('Мелодрама'):
+print('Все драмы в кинотеатре')
+for movie in collection.search_by_genre('драма'):
     print(movie)
 
+print('Все фильмы кинотеатра')
 for movie in collection:
     print(movie)
 
 collection.remove_movie('Гарри Поттер и Узник Азкабана')
 
+print('Все фильмы кинотеатра')
 for movie in collection:
     print(movie)
 
-collection.remove_movie('Один дома')
+collection.remove_movie("Форрест Гамп")
+
+print("Фильмы в коллекции 'Драмы 90-х':")
+for movie in collection.get_collection("Драмы 90-х"):
+    print(movie)
+
