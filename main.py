@@ -10,6 +10,18 @@ class Movie:
     def __str__(self) -> str:
         return f"{self.title} ({self.year}г.) жанр: {self.genre} рейтинг: {self.rating}"
 
+class MovieIterator(Iterator[Movie]):
+    def __init__(self, movies: List[Movie]):
+        self._movies = movies
+        self._index = 0
+
+    def __next__(self) -> Movie:
+        if self._index < len(self._movies):
+            movie = self._movies[self._index]
+            self._index += 1
+            return movie
+        raise StopIteration()
+
 class MovieCollection:
     def __init__(self) -> None:
         self.movies: Dict[str, Movie] = {}
@@ -23,6 +35,8 @@ class MovieCollection:
         else:
             raise ValueError(f'Фильм с названием {title} не найден.')
 
+
+
     def search_by_title(self, title: str) -> Optional[Movie]:
         return self.movies.get(title)
 
@@ -32,8 +46,8 @@ class MovieCollection:
     def search_by_year(self, year: int) -> List[Movie]:
         return [movie for movie in self.movies.values() if movie.year == year]
 
-    def __iter__(self) -> Iterator[Movie]:
-        return iter(self.movies.values())
+    def __iter__(self) -> MovieIterator:
+        return MovieIterator(list(self.movies.values()))
 
 
 collection = MovieCollection()
